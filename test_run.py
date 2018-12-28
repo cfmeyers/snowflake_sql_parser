@@ -46,59 +46,6 @@ class TestQuotedString:
             assert QUOTED_SQL_STRING.parseString('"hello"', parseAll=True)
 
 
-# class TestInteger:
-#     def test_it_has_digits(self):
-#         assert INTEGER.parseString('1', parseAll=True)
-
-#     def test_can_have_multiple(self):
-#         assert INTEGER.parseString('12', parseAll=True)
-
-#     def test_can_have_a_positive_sign(self):
-#         assert INTEGER.parseString('+1', parseAll=True)
-
-#     def test_can_have_a_negative_sign(self):
-#         assert INTEGER.parseString('-1', parseAll=True)
-
-#     def test_it_has_no_dot(self):
-#         with pytest.raises(ParseException):
-#             assert INTEGER.parseString('1.0', parseAll=True)
-
-#     def test_it_has_no_signs_after_the_first_digit(self):
-#         with pytest.raises(ParseException):
-#             assert INTEGER.parseString('1-', parseAll=True)
-#         with pytest.raises(ParseException):
-#             assert INTEGER.parseString('1-1', parseAll=True)
-
-
-# class TestRealNumber:
-#     def test_it_has_digits_and_a_dot(self):
-#         assert REAL_NUMBER.parseString('1.0', parseAll=True)
-
-#     def test_it_can_have_a_positive_sign(self):
-#         assert REAL_NUMBER.parseString('+1.0', parseAll=True)
-
-#     def test_it_can_have_a_negative_sign(self):
-#         assert REAL_NUMBER.parseString('-1.0', parseAll=True)
-
-#     def test_it_has_only_a_single_dot(self):
-#         with pytest.raises(ParseException):
-#             assert REAL_NUMBER.parseString('1..0', parseAll=True)
-#         with pytest.raises(ParseException):
-#             assert REAL_NUMBER.parseString('1.0.', parseAll=True)
-
-#     def test_it_must_start_with_a_digit(self):
-#         with pytest.raises(ParseException):
-#             assert REAL_NUMBER.parseString('.01', parseAll=True)
-
-#     def test_it_must_be_divided_by_a_single_dot(self):
-#         with pytest.raises(ParseException):
-#             assert REAL_NUMBER.parseString('1', parseAll=True)
-
-#     def test_it_must_have_digits_after_the_dot(self):
-#         with pytest.raises(ParseException):
-#             assert REAL_NUMBER.parseString('1.', parseAll=True)
-
-
 class TestArithmeticExpression:
     def test_it_parses_operands_that_are_numeric(self):
         assert ARITHMETIC_EXPRESSION.parseString('1+1', parseAll=True)
@@ -121,6 +68,9 @@ class TestArithmeticExpression:
         assert ARITHMETIC_EXPRESSION.parseString('(x+y)+z', parseAll=True)
         assert ARITHMETIC_EXPRESSION.parseString('(x-y)+z', parseAll=True)
         assert ARITHMETIC_EXPRESSION.parseString('(x-y)-z', parseAll=True)
+
+    def test_it_parses_negative_operands(self):
+        assert ARITHMETIC_EXPRESSION.parseString('-1', parseAll=True)
 
     def test_it_allows_for_parenthesis_surrounding_arithmetic_expression(self):
         assert ARITHMETIC_EXPRESSION.parseString('(x+y)', parseAll=True)
@@ -218,6 +168,9 @@ class TestParseSqlSelect:
 
     def test_select_parses_arithmetic_expressions_as_columns_with_alias(self):
         assert parse_sql('select 1+2 as three,that from hornswoggler;')
+
+    def test_select_parses_quoted_sql_strings_as_columns(self):
+        assert parse_sql("select 'hello',that from hornswoggler;")
 
 
 class TestParseSqlColumnAliases:

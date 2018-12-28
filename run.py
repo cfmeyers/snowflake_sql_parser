@@ -32,8 +32,6 @@ IDENTIFIER = ~(SELECT | FROM | WHERE) + Word(alphas, alphanums + "_$")
 QUOTED_SQL_STRING = QuotedString("'")
 
 ## Define Numbers
-# POSITIVE = Word('+')
-# NEGATIVE = Word('-')
 DIGIT = Word(nums, asKeyword=True)
 INTEGER = DIGIT('integer')
 REAL_NUMBER = (DIGIT + '.' + DIGIT)('real_number')
@@ -61,7 +59,7 @@ ALIAS = Optional(AS) + IDENTIFIER('alias_name')
 
 ## End Expressions
 
-COLUMN_VALUE = (IDENTIFIER | ARITHMETIC_EXPRESSION)('column_value')
+COLUMN_VALUE = (IDENTIFIER | ARITHMETIC_EXPRESSION | QUOTED_SQL_STRING)('column_value')
 
 COLUMN = Group(COLUMN_VALUE + Optional(ALIAS))
 COLUMN_LIST = Group(delimitedList(COLUMN))('column_list')
