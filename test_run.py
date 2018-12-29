@@ -148,10 +148,10 @@ class TestBooleanExpression:
 
 class TestCaseExpression:
     def test_it_parses_boolean_expressions_and_evaluates_to_identifiers(self):
-        assert CASE_EXPRESSION.parseString('case when 1=1 then x', parseAll=True)
+        assert CASE_EXPRESSION.parseString('case when 1=1 then x end', parseAll=True)
 
     def test_it_parses_boolean_expressions_and_evaluates_to_numbers(self):
-        assert CASE_EXPRESSION.parseString('case when 1=1 then 7', parseAll=True)
+        assert CASE_EXPRESSION.parseString('case when 1=1 then 7 end', parseAll=True)
 
     def test_it_can_have_multiple_when_then_clauses(self):
         text = """
@@ -159,6 +159,7 @@ class TestCaseExpression:
             when x then y
             when r then 5
             when t then u
+        end
         """
         assert CASE_EXPRESSION.parseString(text, parseAll=True)
 
@@ -167,6 +168,7 @@ class TestCaseExpression:
         case when p then q 
             when x then y
         else 7
+        end
         """
         assert CASE_EXPRESSION.parseString(text, parseAll=True)
 
@@ -268,7 +270,9 @@ class TestParseSqlSelect:
         assert parse_sql('select 1 > 2 AND not x as boop,that from hornswoggler;')
 
     def test_it_parses_case_expressions_as_columns(self):
-        assert parse_sql('select case when x then y as boop,that from hornswoggler;')
+        assert parse_sql(
+            'select case when x then y end as boop,that from hornswoggler;'
+        )
 
 
 class TestParseSqlColumnAliases:

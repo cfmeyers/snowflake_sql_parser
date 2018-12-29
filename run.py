@@ -31,6 +31,7 @@ IS = CaselessKeyword('is')
 NOT = CaselessKeyword('not')
 NULL = CaselessKeyword('null')
 CASE = CaselessKeyword('case')
+END = CaselessKeyword('end')
 WHEN = CaselessKeyword('when')
 THEN = CaselessKeyword('then')
 ELSE = CaselessKeyword('else')
@@ -47,6 +48,7 @@ KEYWORD = (
     | NOT
     | NULL
     | CASE
+    | END
     | WHEN
     | THEN
     | ELSE
@@ -106,6 +108,7 @@ CASE_EXPRESSION = (
     CASE
     + OneOrMore(WHEN + BOOLEAN_EXPRESSION + THEN + (IDENTIFIER | NUMBER))
     + Optional(ELSE + (IDENTIFIER | NUMBER))
+    + END
 )
 ## End Expressions
 
