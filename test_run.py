@@ -9,6 +9,8 @@ from run import (
     REAL_NUMBER,
     QUOTED_SQL_STRING,
     ARITHMETIC_EXPRESSION,
+    COMPARISON_EXPRESSION,
+    BOOLEAN_EXPRESSION,
 )
 
 
@@ -63,6 +65,7 @@ class TestArithmeticExpression:
         assert ARITHMETIC_EXPRESSION.parseString('x-1', parseAll=True)
         assert ARITHMETIC_EXPRESSION.parseString('x*1', parseAll=True)
         assert ARITHMETIC_EXPRESSION.parseString('x/1', parseAll=True)
+        assert ARITHMETIC_EXPRESSION.parseString('x%1', parseAll=True)
 
     def test_it_parses_operands_that_are_expressions(self):
         assert ARITHMETIC_EXPRESSION.parseString('(x+y)+z', parseAll=True)
@@ -86,6 +89,39 @@ class TestArithmeticExpression:
             assert ARITHMETIC_EXPRESSION.parseString('(1 + 1', parseAll=True)
         with pytest.raises(ParseException):
             assert ARITHMETIC_EXPRESSION.parseString('1 + 1)', parseAll=True)
+
+
+class TestComparisonExpression:
+    def test_it_parses_operands_that_are_numeric(self):
+        assert COMPARISON_EXPRESSION.parseString('1=1', parseAll=True)
+        assert COMPARISON_EXPRESSION.parseString('1!=1', parseAll=True)
+        assert COMPARISON_EXPRESSION.parseString('1 != 1', parseAll=True)
+        assert COMPARISON_EXPRESSION.parseString('1 <> 1', parseAll=True)
+        assert COMPARISON_EXPRESSION.parseString('1 > 1', parseAll=True)
+        assert COMPARISON_EXPRESSION.parseString('1 < 1', parseAll=True)
+        assert COMPARISON_EXPRESSION.parseString('1 < 1', parseAll=True)
+        assert COMPARISON_EXPRESSION.parseString('1 <= 1', parseAll=True)
+        assert COMPARISON_EXPRESSION.parseString('1 >= 1', parseAll=True)
+        assert COMPARISON_EXPRESSION.parseString('(2+2) >= 1', parseAll=True)
+
+    def test_it_parses_operands_that_are_identifiers(self):
+        assert COMPARISON_EXPRESSION.parseString('x=1', parseAll=True)
+
+    def test_a_comparison_requires_two_operands(self):
+        with pytest.raises(ParseException):
+            assert COMPARISON_EXPRESSION.parseString('1 >=', parseAll=True)
+        with pytest.raises(ParseException):
+            assert COMPARISON_EXPRESSION.parseString('1=', parseAll=True)
+
+
+class TestBooleanExpression:
+    def test_it_parses_boolean_keywords(self):
+        assert BOOLEAN_EXPRESSION.parseString('true', parseAll=True)
+        assert BOOLEAN_EXPRESSION.parseString('TRUE', parseAll=True)
+        assert BOOLEAN_EXPRESSION.parseString('True', parseAll=True)
+        assert BOOLEAN_EXPRESSION.parseString('False', parseAll=True)
+        assert BOOLEAN_EXPRESSION.parseString('FALSE', parseAll=True)
+        assert BOOLEAN_EXPRESSION.parseString('False', parseAll=True)
 
 
 class TestIdentifier:

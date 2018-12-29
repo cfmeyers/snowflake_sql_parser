@@ -40,16 +40,23 @@ NUMBER = REAL_NUMBER | INTEGER
 ## Simple Arithmetic Expressions
 ## See https://github.com/pyparsing/pyparsing/blob/master/examples/simpleArith.py
 
-OPERAND = NUMBER | IDENTIFIER
+ARITHMETIC_OPERAND = NUMBER | IDENTIFIER
 ARITHMETIC_EXPRESSION = infixNotation(
-    OPERAND,
+    ARITHMETIC_OPERAND,
     [
         (oneOf('- +'), 1, opAssoc.RIGHT),
-        (oneOf('* /'), 2, opAssoc.LEFT),
+        (oneOf('* / %'), 2, opAssoc.LEFT),
         (oneOf('+ -'), 2, opAssoc.LEFT),
     ],
 )
 
+
+COMPARISON_OPERAND = ARITHMETIC_EXPRESSION
+COMPARISON_OPERATOR = oneOf('= != <> > < <= >=')
+COMPARISON_EXPRESSION = COMPARISON_OPERAND + COMPARISON_OPERATOR + COMPARISON_OPERAND
+
+BOOLEAN_OPERAND = CaselessKeyword('true') | CaselessKeyword('false')
+BOOLEAN_EXPRESSION = BOOLEAN_OPERAND
 
 SPLAT = Keyword('*')
 AS = CaselessKeyword('as')
