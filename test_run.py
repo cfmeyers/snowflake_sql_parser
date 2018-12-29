@@ -11,6 +11,7 @@ from run import (
     ARITHMETIC_EXPRESSION,
     COMPARISON_EXPRESSION,
     BOOLEAN_EXPRESSION,
+    CASE_EXPRESSION,
 )
 
 
@@ -107,6 +108,10 @@ class TestComparisonExpression:
     def test_it_parses_operands_that_are_identifiers(self):
         assert COMPARISON_EXPRESSION.parseString('x=1', parseAll=True)
 
+    def test_it_parses_null_tests(self):
+        assert COMPARISON_EXPRESSION.parseString('x is null', parseAll=True)
+        assert COMPARISON_EXPRESSION.parseString('x is not null', parseAll=True)
+
     def test_a_comparison_requires_two_operands(self):
         with pytest.raises(ParseException):
             assert COMPARISON_EXPRESSION.parseString('1 >=', parseAll=True)
@@ -122,6 +127,48 @@ class TestBooleanExpression:
         assert BOOLEAN_EXPRESSION.parseString('False', parseAll=True)
         assert BOOLEAN_EXPRESSION.parseString('FALSE', parseAll=True)
         assert BOOLEAN_EXPRESSION.parseString('False', parseAll=True)
+
+    def test_it_parses_comparison_expressions_as_operands(self):
+        assert BOOLEAN_EXPRESSION.parseString('1 >= 1', parseAll=True)
+
+    def test_it_parses_identifiers(self):
+        assert BOOLEAN_EXPRESSION.parseString('x', parseAll=True)
+        assert BOOLEAN_EXPRESSION.parseString('x and y', parseAll=True)
+        assert BOOLEAN_EXPRESSION.parseString('(x = y) and false', parseAll=True)
+
+    def test_it_parses_boolean_keywords_with_boolean_operations(self):
+        assert BOOLEAN_EXPRESSION.parseString('true and true', parseAll=True)
+        assert BOOLEAN_EXPRESSION.parseString('true and false', parseAll=True)
+        assert BOOLEAN_EXPRESSION.parseString('true AND FALSE', parseAll=True)
+        assert BOOLEAN_EXPRESSION.parseString('true Or false', parseAll=True)
+        assert BOOLEAN_EXPRESSION.parseString('true or (false AND TRUE)', parseAll=True)
+        assert BOOLEAN_EXPRESSION.parseString('not true', parseAll=True)
+        assert BOOLEAN_EXPRESSION.parseString('not (false and true)', parseAll=True)
+
+
+class TestCaseExpression:
+    def test_it_parses_boolean_expressions_and_evaluates_to_identifiers(self):
+        assert CASE_EXPRESSION.parseString('case when 1=1 then x', parseAll=True)
+
+    def test_it_parses_boolean_expressions_and_evaluates_to_numbers(self):
+        assert CASE_EXPRESSION.parseString('case when 1=1 then 7', parseAll=True)
+
+    def test_it_can_have_multiple_when_then_clauses(self):
+        text = """
+        case when p then q 
+            when x then y
+            when r then 5
+            when t then u
+        """
+        assert CASE_EXPRESSION.parseString(text, parseAll=True)
+
+    def test_it_has_an_optional_else_clause(self):
+        text = """
+        case when p then q 
+            when x then y
+        else 7
+        """
+        assert CASE_EXPRESSION.parseString(text, parseAll=True)
 
 
 class TestIdentifier:
@@ -187,6 +234,12 @@ class TestParseSqlSelect:
         with pytest.raises(ParseException):
             parse_sql("select * from  ;")
 
+    def test_it_parses_select_distinct(self):
+        assert parse_sql('select distinct this, that from hornswoggler;')
+
+    def test_it_parses_select_all(self):
+        assert parse_sql('select all this, that from hornswoggler;')
+
     def test_select_column_names_parses(self):
         assert parse_sql('select this, that from hornswoggler;')
 
@@ -199,14 +252,23 @@ class TestParseSqlSelect:
     def test_select_column_names_without_spaces_parses(self):
         assert parse_sql('select this,that from hornswoggler;')
 
-    def test_select_parses_arithmetic_expressions_as_columns(self):
+    def test_it_parses_arithmetic_expressions_as_columns(self):
         assert parse_sql('select (1+2), that from hornswoggler;')
 
-    def test_select_parses_arithmetic_expressions_as_columns_with_alias(self):
+    def test_it_parses_arithmetic_expressions_as_columns_with_alias(self):
         assert parse_sql('select 1+2 as three,that from hornswoggler;')
 
-    def test_select_parses_quoted_sql_strings_as_columns(self):
+    def test_it_parses_quoted_sql_strings_as_columns(self):
         assert parse_sql("select 'hello',that from hornswoggler;")
+
+    def test_it_parses_comparison_expressions_as_columns(self):
+        assert parse_sql('select 1 > 2 as boop,that from hornswoggler;')
+
+    def test_it_parses_boolean_expressions_as_columns(self):
+        assert parse_sql('select 1 > 2 AND not x as boop,that from hornswoggler;')
+
+    def test_it_parses_case_expressions_as_columns(self):
+        assert parse_sql('select case when x then y as boop,that from hornswoggler;')
 
 
 class TestParseSqlColumnAliases:

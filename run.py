@@ -24,9 +24,39 @@ from pyparsing import (
 )
 
 
-SELECT, FROM, WHERE = [CaselessKeyword(w) for w in 'select from where'.split()]
+SELECT = CaselessKeyword('select')
+FROM = CaselessKeyword('from')
+WHERE = CaselessKeyword('where')
+IS = CaselessKeyword('is')
+NOT = CaselessKeyword('not')
+NULL = CaselessKeyword('null')
+CASE = CaselessKeyword('case')
+WHEN = CaselessKeyword('when')
+THEN = CaselessKeyword('then')
+ELSE = CaselessKeyword('else')
+SPLAT = Keyword('*')
+AS = CaselessKeyword('as')
+DISTINCT = CaselessKeyword('distinct')
+ALL = CaselessKeyword('ALL')
 
-IDENTIFIER = ~(SELECT | FROM | WHERE) + Word(alphas, alphanums + "_$")
+KEYWORD = (
+    SELECT
+    | FROM
+    | WHERE
+    | IS
+    | NOT
+    | NULL
+    | CASE
+    | WHEN
+    | THEN
+    | ELSE
+    | SPLAT
+    | AS
+    | DISTINCT
+    | ALL
+)
+
+IDENTIFIER = ~KEYWORD + Word(alphas, alphanums + "_$")
 
 ## Expressions
 QUOTED_SQL_STRING = QuotedString("'")
@@ -53,25 +83,50 @@ ARITHMETIC_EXPRESSION = infixNotation(
 
 COMPARISON_OPERAND = ARITHMETIC_EXPRESSION
 COMPARISON_OPERATOR = oneOf('= != <> > < <= >=')
-COMPARISON_EXPRESSION = COMPARISON_OPERAND + COMPARISON_OPERATOR + COMPARISON_OPERAND
+COMPARISON_EXPRESSION = (COMPARISON_OPERAND + IS + Optional(NOT) + NULL) | (
+    COMPARISON_OPERAND + COMPARISON_OPERATOR + COMPARISON_OPERAND
+)
 
-BOOLEAN_OPERAND = CaselessKeyword('true') | CaselessKeyword('false')
-BOOLEAN_EXPRESSION = BOOLEAN_OPERAND
+BOOLEAN_OPERAND = (
+    CaselessKeyword('true')
+    | CaselessKeyword('false')
+    | COMPARISON_EXPRESSION
+    | IDENTIFIER
+)
+BOOLEAN_EXPRESSION = infixNotation(
+    BOOLEAN_OPERAND,
+    [
+        (CaselessKeyword('not'), 1, opAssoc.RIGHT),
+        (CaselessKeyword('and'), 2, opAssoc.LEFT),
+        (CaselessKeyword('or'), 2, opAssoc.LEFT),
+    ],
+)
 
-SPLAT = Keyword('*')
-AS = CaselessKeyword('as')
+CASE_EXPRESSION = (
+    CASE
+    + OneOrMore(WHEN + BOOLEAN_EXPRESSION + THEN + (IDENTIFIER | NUMBER))
+    + Optional(ELSE + (IDENTIFIER | NUMBER))
+)
+## End Expressions
+
 TABLE_NAME = IDENTIFIER('table')
 ALIAS = Optional(AS) + IDENTIFIER('alias_name')
 
-
-## End Expressions
-
-COLUMN_VALUE = (IDENTIFIER | ARITHMETIC_EXPRESSION | QUOTED_SQL_STRING)('column_value')
+COLUMN_VALUE = (
+    IDENTIFIER
+    | CASE_EXPRESSION
+    | BOOLEAN_EXPRESSION
+    | COMPARISON_EXPRESSION
+    | ARITHMETIC_EXPRESSION
+    | QUOTED_SQL_STRING
+)('column_value')
 
 COLUMN = Group(COLUMN_VALUE + Optional(ALIAS))
 COLUMN_LIST = Group(delimitedList(COLUMN))('column_list')
 
-SELECT_STATEMENT = SELECT + (SPLAT | COLUMN_LIST) + FROM + TABLE_NAME + ';'
+SELECT_STATEMENT = (
+    SELECT + Optional(DISTINCT | ALL) + (SPLAT | COLUMN_LIST) + FROM + TABLE_NAME + ';'
+)
 
 STATEMENT_DEF = SELECT_STATEMENT('select_statement')
 
