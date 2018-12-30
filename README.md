@@ -19,6 +19,13 @@ Initially it will just check if a script is properly-formed Snowflake SQL.  In t
 - [X] column alias
 - [X] column list
 - [X] table name
+- [X] [schema](https://docs.snowflake.net/manuals/sql-reference/constructs/from.html#object-or-table-function-clause)
+- [X] [database](https://docs.snowflake.net/manuals/sql-reference/constructs/from.html#object-or-table-function-clause)
+- [o] [functions](https://docs.snowflake.net/manuals/sql-reference/functions.html)
+    - [X] [context functions](https://docs.snowflake.net/manuals/sql-reference/functions-context.html)
+    - [X] [bitwise expression functions](https://docs.snowflake.net/manuals/sql-reference/expressions-byte-bit.html)
+- [ ] [cast operator](https://docs.snowflake.net/manuals/sql-reference/functions/cast.html) (`::`)
+- [ ] table alias
 - [ ] [Common Table Expressions](https://docs.snowflake.net/manuals/sql-reference/constructs/with.html) (i.e. `WITH`)
 - [ ] [GROUP BY](https://docs.snowflake.net/manuals/sql-reference/constructs/group-by.html)
 - [ ] [ORDER BY](https://docs.snowflake.net/manuals/sql-reference/constructs/order-by.html)
@@ -26,10 +33,7 @@ Initially it will just check if a script is properly-formed Snowflake SQL.  In t
 - [ ] [WHERE](https://docs.snowflake.net/manuals/sql-reference/constructs/where.html)
 - [ ] [LIMIT](https://docs.snowflake.net/manuals/sql-reference/constructs/limit.html)
 - [ ] [FETCH](https://docs.snowflake.net/manuals/sql-reference/constructs/limit.html)
-- [ ] table alias
-- [ ] schema
-- [ ] database
-- [ ] functions
+- [ ] quoted column alias
 - [ ] UDF
 
 

@@ -23,6 +23,8 @@ from pyparsing import (
     opAssoc,
 )
 
+EXPRESSION = Forward()
+
 
 SELECT = CaselessKeyword('select')
 FROM = CaselessKeyword('from')
@@ -112,23 +114,126 @@ CASE_EXPRESSION = (
 )
 ## End Expressions
 
-TABLE_NAME = IDENTIFIER('table')
-ALIAS = Optional(AS) + IDENTIFIER('alias_name')
+## Function Expressions
+def make_nullary_function(func_name):
+    return CaselessKeyword(func_name) + Optional('()')
 
-COLUMN_VALUE = (
-    IDENTIFIER
+
+def make_unary_function(func_name):
+    return CaselessKeyword(func_name) + '(' + EXPRESSION('arg_1') + ')'
+
+
+def make_binary_function(func_name):
+    return (
+        CaselessKeyword(func_name)
+        + '('
+        + EXPRESSION('arg_1')
+        + ','
+        + EXPRESSION('arg_2')
+        + ')'
+    )
+
+
+CURRENT_CLIENT = make_nullary_function('CURRENT_CLIENT')
+CURRENT_DATE = make_nullary_function('CURRENT_DATE')
+CURRENT_TIME = make_nullary_function('CURRENT_TIME')
+CURRENT_TIMESTAMP = make_nullary_function('CURRENT_TIMESTAMP')
+CURRENT_VERSION = make_nullary_function('CURRENT_VERSION')
+LOCALTIME = make_nullary_function('LOCALTIME')
+LOCALTIMESTAMP = make_nullary_function('LOCALTIMESTAMP')
+CURRENT_ROLE = make_nullary_function('CURRENT_ROLE')
+CURRENT_SESSION = make_nullary_function('CURRENT_SESSION')
+CURRENT_STATEMENT = make_nullary_function('CURRENT_STATEMENT')
+CURRENT_TRANSACTION = make_nullary_function('CURRENT_TRANSACTION')
+CURRENT_USER = make_nullary_function('CURRENT_USER')
+LAST_QUERY_ID = make_nullary_function('LAST_QUERY_ID')
+LAST_TRANSACTION = make_nullary_function('LAST_TRANSACTION')
+CURRENT_DATABASE = make_nullary_function('CURRENT_DATABASE')
+CURRENT_SCHEMA = make_nullary_function('CURRENT_SCHEMA')
+CURRENT_SCHEMAS = make_nullary_function('CURRENT_SCHEMAS')
+CURRENT_WAREHOUSE = make_nullary_function('CURRENT_WAREHOUSE')
+
+
+# Context functions take no args, can optionally be called without parentheses
+CONTEXT_FUNCTION = (
+    CURRENT_CLIENT
+    | CURRENT_DATE
+    | CURRENT_TIME
+    | CURRENT_TIMESTAMP
+    | CURRENT_VERSION
+    | LOCALTIME
+    | LOCALTIMESTAMP
+    | CURRENT_ROLE
+    | CURRENT_SESSION
+    | CURRENT_STATEMENT
+    | CURRENT_TRANSACTION
+    | CURRENT_USER
+    | LAST_QUERY_ID
+    | LAST_TRANSACTION
+    | CURRENT_DATABASE
+    | CURRENT_SCHEMA
+    | CURRENT_SCHEMAS
+    | CURRENT_WAREHOUSE
+)
+
+
+# Bitwise Expression Functions
+BITAND_AGG = make_unary_function('BITAND_AGG')
+BITNOT = make_unary_function('BITNOT')
+BITOR_AGG = make_unary_function('BITOR_AGG')
+BITXOR_AGG = make_unary_function('BITXOR_AGG')
+
+BITAND = make_binary_function('BITAND')
+BITOR = make_binary_function('BITOR')
+BITSHIFTLEFT = make_binary_function('BITSHIFTLEFT')
+BITSHIFTRIGHT = make_binary_function('BITSHIFTRIGHT')
+BITXOR = make_binary_function('BITXOR')
+
+BITWISE_FUNCTION = (
+    BITAND_AGG
+    | BITNOT
+    | BITOR_AGG
+    | BITXOR_AGG
+    | BITAND
+    | BITOR
+    | BITSHIFTLEFT
+    | BITSHIFTRIGHT
+    | BITXOR
+)
+
+
+FUNCTION_EXPRESSION = CONTEXT_FUNCTION | BITWISE_FUNCTION
+## End function expressions
+
+TABLE_NAME = IDENTIFIER('table')
+SCHEMA_NAME = IDENTIFIER('schema')
+DATABASE_NAME = IDENTIFIER('database')
+TABLE_OBJECT = (
+    DATABASE_NAME + '.' + SCHEMA_NAME + '.' + TABLE_NAME
+    | SCHEMA_NAME + '.' + TABLE_NAME
+    | TABLE_NAME
+)
+ALIAS = Optional(AS) + IDENTIFIER('alias_name')
+EXPRESSION << (
+    FUNCTION_EXPRESSION
+    | IDENTIFIER
     | CASE_EXPRESSION
     | BOOLEAN_EXPRESSION
     | COMPARISON_EXPRESSION
     | ARITHMETIC_EXPRESSION
     | QUOTED_SQL_STRING
-)('column_value')
+)('expression')
 
-COLUMN = Group(COLUMN_VALUE + Optional(ALIAS))
+COLUMN = Group(EXPRESSION + Optional(ALIAS))
 COLUMN_LIST = Group(delimitedList(COLUMN))('column_list')
+FROM_CLAUSE = FROM + TABLE_OBJECT
 
 SELECT_STATEMENT = (
-    SELECT + Optional(DISTINCT | ALL) + (SPLAT | COLUMN_LIST) + FROM + TABLE_NAME + ';'
+    SELECT
+    + Optional(DISTINCT | ALL)
+    + (SPLAT | COLUMN_LIST)
+    + Optional(FROM_CLAUSE)
+    + ';'
 )
 
 STATEMENT_DEF = SELECT_STATEMENT('select_statement')

@@ -12,7 +12,107 @@ from run import (
     COMPARISON_EXPRESSION,
     BOOLEAN_EXPRESSION,
     CASE_EXPRESSION,
+    TABLE_OBJECT,
+    CONTEXT_FUNCTION,
+    BITWISE_FUNCTION,
 )
+
+
+class TestContextFunction:
+    """
+    Context functions can optionally be called without parentheses
+    """
+
+    def test_it_can_be_just_the_function_name(self):
+        assert CONTEXT_FUNCTION.parseString('CURRENT_DATE', parseAll=True)
+
+    def test_case_does_not_matter(self):
+        assert CONTEXT_FUNCTION.parseString('CURRENT_DATE', parseAll=True)
+        assert CONTEXT_FUNCTION.parseString('current_date', parseAll=True)
+
+    def test_it_can_be_function_name_and_parenthesis(self):
+        assert CONTEXT_FUNCTION.parseString('CURRENT_DATE()', parseAll=True)
+        assert CONTEXT_FUNCTION.parseString('current_date()', parseAll=True)
+
+    def test_it_needs_first_an_opening_then_a_closing_parenthesis_or_none_at_all(self):
+        with pytest.raises(ParseException):
+            assert CONTEXT_FUNCTION.parseString('CURRENT_DATE(', parseAll=True)
+        with pytest.raises(ParseException):
+            assert CONTEXT_FUNCTION.parseString('CURRENT_DATE)', parseAll=True)
+        with pytest.raises(ParseException):
+            assert CONTEXT_FUNCTION.parseString('CURRENT_DATE)(', parseAll=True)
+
+
+class TestBitwiseFunction:
+    def test_it_can_be_a_unary_function(self):
+        assert BITWISE_FUNCTION.parseString('BITNOT(1)', parseAll=True)
+        assert BITWISE_FUNCTION.parseString('BITNOT(x)', parseAll=True)
+        assert BITWISE_FUNCTION.parseString('BITNOT(1+1)', parseAll=True)
+        assert BITWISE_FUNCTION.parseString('BITNOT(1+(1+2))', parseAll=True)
+        assert BITWISE_FUNCTION.parseString('bitand_agg(1)', parseAll=True)
+
+    def test_it_can_be_a_binary_function(self):
+        assert BITWISE_FUNCTION.parseString('BITAND(x,y)', parseAll=True)
+        assert BITWISE_FUNCTION.parseString('bitand(x,y)', parseAll=True)
+        assert BITWISE_FUNCTION.parseString('bitand(1, y)', parseAll=True)
+        assert BITWISE_FUNCTION.parseString('bitand( x, 5+5*2 )', parseAll=True)
+
+    def test_it_can_be_have_expressions_as_arguments(self):
+        assert BITWISE_FUNCTION.parseString('BITAND(x, y)', parseAll=True)
+
+    def test_unary_function_must_have_exactly_1_argument(self):
+        with pytest.raises(ParseException):
+            assert BITWISE_FUNCTION.parseString('BITNOT(x, y)', parseAll=True)
+        with pytest.raises(ParseException):
+            assert BITWISE_FUNCTION.parseString('BITNOT()', parseAll=True)
+
+    def test_binary_function_must_have_exactly_2_argument(self):
+        with pytest.raises(ParseException):
+            assert BITWISE_FUNCTION.parseString('BITAND(y)', parseAll=True)
+        with pytest.raises(ParseException):
+            assert BITWISE_FUNCTION.parseString('BITAND(x, y, z)', parseAll=True)
+
+
+class TestIdentifier:
+    def test_it_can_be_just_letters(self):
+        assert IDENTIFIER.parseString('foodlion', parseAll=True)
+
+    def test_it_can_be_initial_letter_then_digits(self):
+        assert IDENTIFIER.parseString('x11', parseAll=True)
+
+    def test_it_can_be_initial_letter_then_underscore(self):
+        assert IDENTIFIER.parseString('x11_version2', parseAll=True)
+
+    def test_it_cannot_start_with_a_digit(self):
+        with pytest.raises(ParseException):
+            assert IDENTIFIER.parseString('1', parseAll=True)
+
+    def test_it_cannot_start_with_an_underscore(self):
+        with pytest.raises(ParseException):
+            assert IDENTIFIER.parseString('_x', parseAll=True)
+
+    def test_it_cannot_be_a_keyword(self):
+        keywords = ['select', 'from', 'where']
+        for keyword in keywords:
+            with pytest.raises(ParseException):
+                assert IDENTIFIER.parseString(keyword, parseAll=True)
+
+    def test_it_cannot_have_a_dot(self):
+        with pytest.raises(ParseException):
+            assert IDENTIFIER.parseString('hello.world', parseAll=True)
+
+
+class TestTableObject:
+    def test_it_is_an_identifier(self):
+        assert TABLE_OBJECT.parseString('hornswoggler', parseAll=True)
+        with pytest.raises(ParseException):
+            assert TABLE_OBJECT.parseString('1hornswoggler', parseAll=True)
+
+    def test_it_can_have_a_schema(self):
+        assert TABLE_OBJECT.parseString('crodscollop.hornswoggler', parseAll=True)
+
+    def test_it_can_have_a_schema_and_a_database_name(self):
+        assert TABLE_OBJECT.parseString('fun.crodscollop.hornswoggler', parseAll=True)
 
 
 class TestQuotedString:
@@ -173,35 +273,6 @@ class TestCaseExpression:
         assert CASE_EXPRESSION.parseString(text, parseAll=True)
 
 
-class TestIdentifier:
-    def test_it_can_be_just_letters(self):
-        assert IDENTIFIER.parseString('foodlion', parseAll=True)
-
-    def test_it_can_be_initial_letter_then_digits(self):
-        assert IDENTIFIER.parseString('x11', parseAll=True)
-
-    def test_it_can_be_initial_letter_then_underscore(self):
-        assert IDENTIFIER.parseString('x11_version2', parseAll=True)
-
-    def test_it_cannot_start_with_a_digit(self):
-        with pytest.raises(ParseException):
-            assert IDENTIFIER.parseString('1', parseAll=True)
-
-    def test_it_cannot_start_with_an_underscore(self):
-        with pytest.raises(ParseException):
-            assert IDENTIFIER.parseString('_x', parseAll=True)
-
-    def test_it_cannot_be_a_keyword(self):
-        keywords = ['select', 'from', 'where']
-        for keyword in keywords:
-            with pytest.raises(ParseException):
-                assert IDENTIFIER.parseString(keyword, parseAll=True)
-
-    def test_it_cannot_have_a_dot(self):
-        with pytest.raises(ParseException):
-            assert IDENTIFIER.parseString('hello.world', parseAll=True)
-
-
 class TestParseSqlSelect:
     def test_select_star_parses(self):
         assert parse_sql('select * from hornswoggler;')
@@ -274,10 +345,23 @@ class TestParseSqlSelect:
             'select case when x then y end as boop,that from hornswoggler;'
         )
 
+    def test_it_does_not_require_a_from_clause(self):
+        assert parse_sql('select 1;')
+
+    def test_it_parses_function_expressions_as_columns(self):
+        assert parse_sql('select current_time() as x,that from hornswoggler;')
+        assert parse_sql('select current_time as x,that from hornswoggler;')
+
+    def test_it_parses_unary_function_expressions_as_columns(self):
+        assert parse_sql('select BITNOT(x) as x,that from hornswoggler;')
+
+    def test_it_parses_binary_function_expressions_as_columns(self):
+        assert parse_sql('select BITAND(x, y) as x,that from hornswoggler;')
+
 
 class TestParseSqlColumnAliases:
     def test_select_column_names_with_as_alias_parses(self):
-        assert parse_sql('select quogwinkle as x from hornswoggler;')
+        assert parse_sql('select quogwinkle as x from bip.boop.hornswoggler;')
 
     def test_select_column_names_with_non_as_alias_parses(self):
         assert parse_sql('select quogwinkle x from hornswoggler;')
