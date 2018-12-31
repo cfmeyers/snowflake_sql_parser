@@ -123,15 +123,25 @@ def make_unary_function(func_name):
     return CaselessKeyword(func_name) + '(' + EXPRESSION('arg_1') + ')'
 
 
-def make_binary_function(func_name):
+def make_unary_function_with_optional_arg(func_name):
     return (
         CaselessKeyword(func_name)
         + '('
         + EXPRESSION('arg_1')
-        + ','
-        + EXPRESSION('arg_2')
+        + Optional(',' + EXPRESSION('arg_2_optional'))
         + ')'
     )
+
+
+def make_function(func_name, arity):
+    func_expression = CaselessKeyword(func_name) + '('
+    for arg_num in range(1, arity + 1):
+        arg_name = 'arg_' + str(arg_num)
+        func_expression += EXPRESSION(arg_name)
+        if arg_num < arity:
+            func_expression += ','
+    func_expression += ')'
+    return func_expression
 
 
 CURRENT_CLIENT = make_nullary_function('CURRENT_CLIENT')
@@ -177,32 +187,39 @@ CONTEXT_FUNCTION = (
 )
 
 
-# Bitwise Expression Functions
 BITAND_AGG = make_unary_function('BITAND_AGG')
 BITNOT = make_unary_function('BITNOT')
 BITOR_AGG = make_unary_function('BITOR_AGG')
 BITXOR_AGG = make_unary_function('BITXOR_AGG')
+UNARY_FUNCTION = BITAND_AGG | BITNOT | BITOR_AGG | BITXOR_AGG
 
-BITAND = make_binary_function('BITAND')
-BITOR = make_binary_function('BITOR')
-BITSHIFTLEFT = make_binary_function('BITSHIFTLEFT')
-BITSHIFTRIGHT = make_binary_function('BITSHIFTRIGHT')
-BITXOR = make_binary_function('BITXOR')
 
-BITWISE_FUNCTION = (
-    BITAND_AGG
-    | BITNOT
-    | BITOR_AGG
-    | BITXOR_AGG
-    | BITAND
-    | BITOR
-    | BITSHIFTLEFT
-    | BITSHIFTRIGHT
-    | BITXOR
+BITAND = make_function('BITAND', 2)
+BITOR = make_function('BITOR', 2)
+BITSHIFTLEFT = make_function('BITSHIFTLEFT', 2)
+BITSHIFTRIGHT = make_function('BITSHIFTRIGHT', 2)
+BITXOR = make_function('BITXOR', 2)
+
+
+BINARY_FUNCTION = BITAND | BITOR | BITSHIFTLEFT | BITSHIFTRIGHT | BITXOR
+# Rounding and Truncation
+ABS = make_unary_function_with_optional_arg('ABS')
+CEIL = make_unary_function_with_optional_arg('CEIL')
+# FLOOR
+# MOD
+# ROUND
+# SIGN
+# TRUNCATE
+# TRUNC
+UNARY_FUNCTION_WITH_OPTIONAL_ARG = ABS | CEIL
+
+
+FUNCTION_EXPRESSION = (
+    CONTEXT_FUNCTION
+    | UNARY_FUNCTION
+    | BINARY_FUNCTION
+    | UNARY_FUNCTION_WITH_OPTIONAL_ARG
 )
-
-
-FUNCTION_EXPRESSION = CONTEXT_FUNCTION | BITWISE_FUNCTION
 ## End function expressions
 
 TABLE_NAME = IDENTIFIER('table')
