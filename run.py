@@ -119,6 +119,10 @@ def make_nullary_function(func_name):
     return CaselessKeyword(func_name) + Optional('()')
 
 
+def make_nullary_function_manditory_parenthesis(func_name):
+    return CaselessKeyword(func_name) + '()'
+
+
 def make_unary_function(func_name):
     return CaselessKeyword(func_name) + '(' + EXPRESSION('arg_1') + ')'
 
@@ -186,32 +190,100 @@ CONTEXT_FUNCTION = (
     | CURRENT_WAREHOUSE
 )
 
+PI = make_nullary_function_manditory_parenthesis('PI')
+NULLARY_FUNCTION_WITH_MANDATORY_PARENTHESES = PI
 
+
+# Unary Functions
 BITAND_AGG = make_unary_function('BITAND_AGG')
 BITNOT = make_unary_function('BITNOT')
 BITOR_AGG = make_unary_function('BITOR_AGG')
 BITXOR_AGG = make_unary_function('BITXOR_AGG')
-UNARY_FUNCTION = BITAND_AGG | BITNOT | BITOR_AGG | BITXOR_AGG
+SIGN = make_unary_function('SIGN')
+CBRT = make_unary_function('CBRT')
+EXP = make_unary_function('EXP')
+FACTORIAL = make_unary_function('FACTORIAL')
+SQRT = make_unary_function('SQRT')
+SQUARE = make_unary_function('SQUARE')
+LN = make_unary_function('LN')
+
+ACOS = make_unary_function('ACOS')
+ACOSH = make_unary_function('ACOSH')
+ASIN = make_unary_function('ASIN')
+ASINH = make_unary_function('ASINH')
+ATAN = make_unary_function('ATAN')
+ATAN2 = make_unary_function('ATAN2')
+ATANH = make_unary_function('ATANH')
+COS = make_unary_function('COS')
+COSH = make_unary_function('COSH')
+COT = make_unary_function('COT')
+DEGREES = make_unary_function('DEGREES')
+RADIANS = make_unary_function('RADIANS')
+SIN = make_unary_function('SIN')
+SINH = make_unary_function('SINH')
+TAN = make_unary_function('TAN')
+TANH = make_unary_function('TANH')
+
+UNARY_FUNCTION = (
+    BITAND_AGG
+    | BITNOT
+    | BITOR_AGG
+    | BITXOR_AGG
+    | SIGN
+    | CBRT
+    | EXP
+    | FACTORIAL
+    | SQRT
+    | SQUARE
+    | LN
+    | ACOS
+    | ACOSH
+    | ASIN
+    | ASINH
+    | ATAN
+    | ATAN2
+    | ATANH
+    | COS
+    | COSH
+    | COT
+    | DEGREES
+    | RADIANS
+    | SIN
+    | SINH
+    | TAN
+    | TANH
+)
 
 
+# Binary Functions
 BITAND = make_function('BITAND', 2)
 BITOR = make_function('BITOR', 2)
 BITSHIFTLEFT = make_function('BITSHIFTLEFT', 2)
 BITSHIFTRIGHT = make_function('BITSHIFTRIGHT', 2)
 BITXOR = make_function('BITXOR', 2)
+MOD = make_function('MOD', 2)
+POW = make_function('POW', 2)
+POWER = make_function('POWER', 2)
+LOG = make_function('LOG', 2)
 
 
-BINARY_FUNCTION = BITAND | BITOR | BITSHIFTLEFT | BITSHIFTRIGHT | BITXOR
-# Rounding and Truncation
+BINARY_FUNCTION = (
+    BITAND | BITOR | BITSHIFTLEFT | BITSHIFTRIGHT | BITXOR | MOD | POW | POWER | LOG
+)
+
+# Quaternary Functions
+HAVERSINE = make_function('HAVERSINE', 4)
+QUATERNARY_FUNCTION = HAVERSINE
+
 ABS = make_unary_function_with_optional_arg('ABS')
 CEIL = make_unary_function_with_optional_arg('CEIL')
-# FLOOR
-# MOD
-# ROUND
-# SIGN
-# TRUNCATE
-# TRUNC
-UNARY_FUNCTION_WITH_OPTIONAL_ARG = ABS | CEIL
+FLOOR = make_unary_function_with_optional_arg('FLOOR')
+ROUND = make_unary_function_with_optional_arg('ROUND')
+TRUNCATE = make_unary_function_with_optional_arg('TRUNCATE')
+TRUNC = make_unary_function_with_optional_arg('TRUNC')
+
+
+UNARY_FUNCTION_WITH_OPTIONAL_ARG = ABS | CEIL | FLOOR | ROUND | TRUNCATE | TRUNC
 
 
 FUNCTION_EXPRESSION = (
@@ -219,6 +291,8 @@ FUNCTION_EXPRESSION = (
     | UNARY_FUNCTION
     | BINARY_FUNCTION
     | UNARY_FUNCTION_WITH_OPTIONAL_ARG
+    | QUATERNARY_FUNCTION
+    | NULLARY_FUNCTION_WITH_MANDATORY_PARENTHESES
 )
 ## End function expressions
 

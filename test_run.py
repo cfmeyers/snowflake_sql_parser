@@ -17,6 +17,8 @@ from run import (
     UNARY_FUNCTION,
     BINARY_FUNCTION,
     UNARY_FUNCTION_WITH_OPTIONAL_ARG,
+    QUATERNARY_FUNCTION,
+    NULLARY_FUNCTION_WITH_MANDATORY_PARENTHESES,
 )
 
 
@@ -51,6 +53,19 @@ class TestContextFunction:
         assert_raises_parse_exception(CONTEXT_FUNCTION, 'CURRENT_DATE)(')
 
 
+class TestNullaryFunctionMandatoryWithParenthesesFunction:
+    def test_it_takes_no_args(self):
+        assert_parses(NULLARY_FUNCTION_WITH_MANDATORY_PARENTHESES, 'PI()')
+
+    def test_it_must_have_parenthesis(self):
+        assert_raises_parse_exception(NULLARY_FUNCTION_WITH_MANDATORY_PARENTHESES, 'PI')
+
+    def test_it_must_have_no_arguments(self):
+        assert_raises_parse_exception(
+            NULLARY_FUNCTION_WITH_MANDATORY_PARENTHESES, 'PI(1)'
+        )
+
+
 class TestUnaryFunction:
     def test_it_takes_a_single_arg(self):
         assert_parses(UNARY_FUNCTION, 'BITNOT(1)')
@@ -73,15 +88,31 @@ class TestBinaryFunction:
     def test_it_can_be_have_expressions_as_arguments(self):
         assert_parses(BINARY_FUNCTION, 'bitand( x, 5+5*2 )')
 
-    def test_it_must_have_exactly_2_argument(self):
+    def test_it_must_have_exactly_2_arguments(self):
         assert_raises_parse_exception(BINARY_FUNCTION, 'BITAND(y)')
         assert_raises_parse_exception(BINARY_FUNCTION, 'BITAND(x, y, z)')
+
+
+class TestQuaternaryFunction:
+    def test_it_takes_four_args(self):
+        assert_parses(QUATERNARY_FUNCTION, 'HAVERSINE(w,x,y,z)')
+
+    def test_it_must_have_exactly_4_arguments(self):
+        assert_raises_parse_exception(QUATERNARY_FUNCTION, 'HAVERSINE()')
+        assert_raises_parse_exception(QUATERNARY_FUNCTION, 'HAVERSINE(x)')
+        assert_raises_parse_exception(QUATERNARY_FUNCTION, 'HAVERSINE(x,y)')
+        assert_raises_parse_exception(QUATERNARY_FUNCTION, 'HAVERSINE(x,y,z)')
+        assert_raises_parse_exception(QUATERNARY_FUNCTION, 'HAVERSINE(x,y,z,1,2)')
 
 
 class TestUnaryFunctionWithOptionalArg:
     def test_it_can_have_just_one_arg(self):
         assert_parses(UNARY_FUNCTION_WITH_OPTIONAL_ARG, 'ABS(x)')
         assert_parses(UNARY_FUNCTION_WITH_OPTIONAL_ARG, 'ceil(1)')
+        assert_parses(UNARY_FUNCTION_WITH_OPTIONAL_ARG, 'floor(1)')
+        assert_parses(UNARY_FUNCTION_WITH_OPTIONAL_ARG, 'round(1)')
+        assert_parses(UNARY_FUNCTION_WITH_OPTIONAL_ARG, 'truncate(1)')
+        assert_parses(UNARY_FUNCTION_WITH_OPTIONAL_ARG, 'trunc(1)')
 
     def test_it_can_have_two_args(self):
         assert_parses(UNARY_FUNCTION_WITH_OPTIONAL_ARG, 'ABS(x, y)')
