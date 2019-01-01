@@ -298,8 +298,8 @@ class TestParseSqlSelect:
         assert parse_sql('select BITAND(x, y) as x,that from hornswoggler;')
 
     def test_it_parses_unary_function_expressions_with_optional_second_arg(self):
-        assert parse_sql('select ABS(x) as x,that from hornswoggler;')
-        assert parse_sql('select ABS(x, y) as x,that from hornswoggler;')
+        assert parse_sql('select CEIL(x) as x,that from hornswoggler;')
+        assert parse_sql('select CEIL(x, y) as x,that from hornswoggler;')
 
 
 class TestParseSqlColumnAliases:

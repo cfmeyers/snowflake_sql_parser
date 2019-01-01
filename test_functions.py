@@ -6,9 +6,12 @@ from functions import (
     make_context_function_expression,
     make_unary_function_expression,
     make_binary_function_expression,
-    make_function,
-    make_unary_function_with_optional_arg_expression,
-    make_nullary_function_manditory_parenthesis,
+    make_n_ary_function,
+    make_unary_function_with_one_optional_arg,
+    make_nullary_function,
+    make_unary_function_with_two_optional_args,
+    make_unary_function_with_three_optional_args,
+    make_binary_function_with_one_optional_args,
 )
 
 
@@ -27,9 +30,18 @@ UNARY_FUNCTION = make_unary_function_expression(EXPRESSION)
 BINARY_FUNCTION = make_binary_function_expression(EXPRESSION)
 
 # Quaternary Functions
-QUATERNARY_FUNCTION = make_function('HAVERSINE', 4, EXPRESSION)
+QUATERNARY_FUNCTION = make_n_ary_function('HAVERSINE', 4, EXPRESSION)
 
-UNARY_FUNCTION_WITH_OPTIONAL_ARG = make_unary_function_with_optional_arg_expression(
+UNARY_FUNCTION_WITH_ONE_OPTIONAL_ARG = make_unary_function_with_one_optional_arg(
+    EXPRESSION
+)
+UNARY_FUNCTION_WITH_TWO_OPTIONAL_ARGS = make_unary_function_with_two_optional_args(
+    EXPRESSION
+)
+UNARY_FUNCTION_WITH_THREE_OPTIONAL_ARGS = make_unary_function_with_three_optional_args(
+    EXPRESSION
+)
+BINARY_FUNCTION_WITH_ONE_OPTIONAL_ARG = make_binary_function_with_one_optional_args(
     EXPRESSION
 )
 
@@ -74,15 +86,15 @@ class TestContextFunction:
 
 class TestNullaryFunctionMandatoryWithParenthesesFunction:
     def test_it_takes_no_args(self):
-        it = make_nullary_function_manditory_parenthesis('PI')
+        it = make_nullary_function('PI')
         assert_parses(it, 'PI()')
 
     def test_it_must_have_parenthesis(self):
-        it = make_nullary_function_manditory_parenthesis('PI')
+        it = make_nullary_function('PI')
         assert_raises_parse_exception(it, 'PI')
 
     def test_it_must_have_no_arguments(self):
-        it = make_nullary_function_manditory_parenthesis('PI')
+        it = make_nullary_function('PI')
         assert_raises_parse_exception(it, 'PI(1)')
 
 
@@ -125,18 +137,82 @@ class TestQuaternaryFunction:
         assert_raises_parse_exception(QUATERNARY_FUNCTION, 'HAVERSINE(x,y,z,1,2)')
 
 
-class TestUnaryFunctionWithOptionalArg:
+class TestUnaryFunctionWithOneOptionalArg:
     def test_it_can_have_just_one_arg(self):
-        assert_parses(UNARY_FUNCTION_WITH_OPTIONAL_ARG, 'ABS(x)')
-        assert_parses(UNARY_FUNCTION_WITH_OPTIONAL_ARG, 'ceil(1)')
-        assert_parses(UNARY_FUNCTION_WITH_OPTIONAL_ARG, 'floor(1)')
-        assert_parses(UNARY_FUNCTION_WITH_OPTIONAL_ARG, 'round(1)')
-        assert_parses(UNARY_FUNCTION_WITH_OPTIONAL_ARG, 'truncate(1)')
-        assert_parses(UNARY_FUNCTION_WITH_OPTIONAL_ARG, 'trunc(1)')
+        assert_parses(UNARY_FUNCTION_WITH_ONE_OPTIONAL_ARG, 'ceil(1)')
+        assert_parses(UNARY_FUNCTION_WITH_ONE_OPTIONAL_ARG, 'floor(1)')
+        assert_parses(UNARY_FUNCTION_WITH_ONE_OPTIONAL_ARG, 'round(1)')
+        assert_parses(UNARY_FUNCTION_WITH_ONE_OPTIONAL_ARG, 'truncate(1)')
+        assert_parses(UNARY_FUNCTION_WITH_ONE_OPTIONAL_ARG, 'trunc(1)')
 
     def test_it_can_have_two_args(self):
-        assert_parses(UNARY_FUNCTION_WITH_OPTIONAL_ARG, 'ABS(x, y)')
+        assert_parses(UNARY_FUNCTION_WITH_ONE_OPTIONAL_ARG, 'CEIL(x, y)')
 
     def test_it_must_have_either_one_or_two_args(self):
-        assert_raises_parse_exception(UNARY_FUNCTION_WITH_OPTIONAL_ARG, 'ABS()')
-        assert_raises_parse_exception(UNARY_FUNCTION_WITH_OPTIONAL_ARG, 'ABS(1,2,3)')
+        assert_raises_parse_exception(UNARY_FUNCTION_WITH_ONE_OPTIONAL_ARG, 'CEIL()')
+        assert_raises_parse_exception(
+            UNARY_FUNCTION_WITH_ONE_OPTIONAL_ARG, 'CEIL(1,2,3)'
+        )
+
+
+class TestUnaryFunctionWithTwoOptionalArgs:
+    def test_it_can_have_just_one_arg(self):
+        assert_parses(UNARY_FUNCTION_WITH_TWO_OPTIONAL_ARGS, 'BASE64_ENCODE(1)')
+        assert_parses(UNARY_FUNCTION_WITH_TWO_OPTIONAL_ARGS, 'AS_DECIMAL(1)')
+        assert_parses(UNARY_FUNCTION_WITH_TWO_OPTIONAL_ARGS, 'AS_NUMBER(1)')
+
+    def test_it_can_have_two_args(self):
+        assert_parses(UNARY_FUNCTION_WITH_TWO_OPTIONAL_ARGS, 'AS_NUMBER(x, y)')
+
+    def test_it_can_have_three_args(self):
+        assert_parses(UNARY_FUNCTION_WITH_TWO_OPTIONAL_ARGS, 'AS_NUMBER(x, y, z)')
+
+    def test_it_must_have_between_one_and_3_args(self):
+        assert_raises_parse_exception(
+            UNARY_FUNCTION_WITH_TWO_OPTIONAL_ARGS, 'AS_NUMBER()'
+        )
+        assert_raises_parse_exception(
+            UNARY_FUNCTION_WITH_TWO_OPTIONAL_ARGS, 'AS_NUMBER(1,2,3,4)'
+        )
+
+
+class TestUnaryFunctionWithThreeOptionalArgs:
+    def test_it_can_have_just_one_arg(self):
+        assert_parses(UNARY_FUNCTION_WITH_THREE_OPTIONAL_ARGS, 'TO_DECIMAL(1)')
+        assert_parses(UNARY_FUNCTION_WITH_THREE_OPTIONAL_ARGS, 'TO_NUMBER(1)')
+        assert_parses(UNARY_FUNCTION_WITH_THREE_OPTIONAL_ARGS, 'TO_NUMERIC(1)')
+
+    def test_it_can_have_two_args(self):
+        assert_parses(UNARY_FUNCTION_WITH_THREE_OPTIONAL_ARGS, 'TO_DECIMAL(x, y)')
+
+    def test_it_can_have_three_args(self):
+        assert_parses(UNARY_FUNCTION_WITH_THREE_OPTIONAL_ARGS, 'TO_DECIMAL(x, y, z)')
+
+    def test_it_can_have_four_args(self):
+        assert_parses(UNARY_FUNCTION_WITH_THREE_OPTIONAL_ARGS, 'TO_DECIMAL(x, y, z, a)')
+
+    def test_it_must_have_between_one_and_4_args(self):
+        assert_raises_parse_exception(
+            UNARY_FUNCTION_WITH_THREE_OPTIONAL_ARGS, 'TO_DECIMAL()'
+        )
+        assert_raises_parse_exception(
+            UNARY_FUNCTION_WITH_THREE_OPTIONAL_ARGS, 'TO_DECIMAL(1,2,3,4,5)'
+        )
+
+
+class TestBinaryFunctionWithOneOptionalArgs:
+    def test_it_can_have_just_one_arg(self):
+        assert_parses(BINARY_FUNCTION_WITH_ONE_OPTIONAL_ARG, 'CHARINDEX(1,2)')
+        assert_parses(BINARY_FUNCTION_WITH_ONE_OPTIONAL_ARG, 'ILIKE(1,2)')
+        assert_parses(BINARY_FUNCTION_WITH_ONE_OPTIONAL_ARG, 'LIKE(1,2)')
+
+    def test_it_can_have_three_args(self):
+        assert_parses(BINARY_FUNCTION_WITH_ONE_OPTIONAL_ARG, 'CHARINDEX(x, y, z)')
+
+    def test_it_must_have_between_one_and_3_args(self):
+        assert_raises_parse_exception(
+            BINARY_FUNCTION_WITH_ONE_OPTIONAL_ARG, 'CHARINDEX()'
+        )
+        assert_raises_parse_exception(
+            BINARY_FUNCTION_WITH_ONE_OPTIONAL_ARG, 'CHARINDEX(1,2,3,4)'
+        )

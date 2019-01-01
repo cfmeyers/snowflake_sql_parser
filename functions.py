@@ -1,8 +1,5 @@
 from pyparsing import CaselessKeyword, Optional
 
-## Function Expressions
-## End function expressions
-
 
 def or_equals(expressions):
     final_expression = expressions[0]
@@ -12,11 +9,11 @@ def or_equals(expressions):
     return final_expression
 
 
-def make_nullary_function(func_name):
+def make_nullary_function_optional_parens(func_name):
     return CaselessKeyword(func_name) + Optional('()')
 
 
-def make_nullary_function_manditory_parenthesis(func_name):
+def make_nullary_function(func_name):
     return CaselessKeyword(func_name) + '()'
 
 
@@ -30,23 +27,15 @@ def make_unary_function(func_name, EXPRESSION):
     return CaselessKeyword(func_name) + '(' + EXPRESSION('arg_1') + ')'
 
 
-def make_unary_function_with_optional_arg(func_name, EXPRESSION):
-    return (
-        CaselessKeyword(func_name)
-        + '('
-        + EXPRESSION('arg_1')
-        + Optional(',' + EXPRESSION('arg_2_optional'))
-        + ')'
-    )
-
-
-def make_function(func_name, arity, EXPRESSION):
+def make_n_ary_function(func_name, arity, EXPRESSION, num_optional=0):
     func_expression = CaselessKeyword(func_name) + '('
     for arg_num in range(1, arity + 1):
         arg_name = 'arg_' + str(arg_num)
         func_expression += EXPRESSION(arg_name)
         if arg_num < arity:
             func_expression += ','
+    for opt_num in range(1, num_optional + 1):
+        func_expression += Optional(',' + EXPRESSION('optional_arg_' + str(arg_num)))
     func_expression += ')'
     return func_expression
 
@@ -73,7 +62,9 @@ def make_context_function_expression(EXPRESSION):
         'CURRENT_SCHEMAS',
         'CURRENT_WAREHOUSE',
     ]
-    CONTEXT_FUNCTION = or_equals([make_nullary_function(f) for f in func_names])
+    CONTEXT_FUNCTION = or_equals(
+        [make_nullary_function_optional_parens(f) for f in func_names]
+    )
 
     return CONTEXT_FUNCTION
 
@@ -219,9 +210,67 @@ def make_unary_function_expression(EXPRESSION):
     return UNARY_FUNCTION
 
 
-def make_binary_function_expression(EXPRESSION):
-    # Binary Functions
+def make_unary_function_with_one_optional_arg(EXPRESSION):
+    func_names = [
+        'CEIL',
+        'FLOOR',
+        'ROUND',
+        'TRUNCATE',
+        'TRUNC',
+        'INITCAP',
+        'LTRIM',
+        'PARSE_URL',
+        'REPEAT',
+        'RTRIM',
+        'TRIM',
+        'BASE64_DECODE_BINARY',
+        'BASE64_DECODE_STRING',
+        'HEX_ENCODE',
+        'TRY_BASE64_DECODE_BINARY',
+        'TRY_BASE64_DECODE_STRING',
+        'SHA2',
+        'SHA2_HEX',
+        'SHA2_BINARY',
+        'LAST_DAY',
+        'TO_DATE',
+        'TO_TIME',
+        'TO_TIMESTAMP_LTZ',
+        'TO_TIMESTAMP_NTZ',
+        'TO_TIMESTAMP_TZ',
+        'TO_CHAR',
+        'TO_VARCHAR',
+        'TO_BINARY',
+        'TRY_TO_BINARY',
+        'TO_DOUBLE',
+        'SYSTEM$WAIT',
+    ]
+    return or_equals(
+        [make_n_ary_function(f, 1, EXPRESSION, num_optional=1) for f in func_names]
+    )
 
+
+def make_unary_function_with_two_optional_args(EXPRESSION):
+    func_names = ['BASE64_ENCODE', 'AS_DECIMAL', 'AS_NUMBER']
+    return or_equals(
+        [make_n_ary_function(f, 1, EXPRESSION, num_optional=2) for f in func_names]
+    )
+
+
+def make_unary_function_with_three_optional_args(EXPRESSION):
+    func_names = [
+        'TO_DECIMAL',
+        'TO_NUMBER',
+        'TO_NUMERIC',
+        'TRY_TO_DECIMAL',
+        'TRY_TO_NUMBER',
+        'TRY_TO_NUMERIC',
+    ]
+    return or_equals(
+        [make_n_ary_function(f, 1, EXPRESSION, num_optional=3) for f in func_names]
+    )
+
+
+def make_binary_function_expression(EXPRESSION):
     func_names = [
         'BITAND',
         'BITOR',
@@ -232,47 +281,131 @@ def make_binary_function_expression(EXPRESSION):
         'POW',
         'POWER',
         'LOG',
+        'CONCAT',
+        'CONTAINS',
+        'EDITDISTANCE',
+        'ENDSWITH',
+        'LEFT',
+        'RIGHT',
+        'SPLIT',
+        'STARTSWITH',
+        'DATE_PART',
+        'NEXT_DAY',
+        'PREVIOUS_DAY',
+        'ADD_MONTHS',
+        'DATE_TRUNC',
+        'TRUNC',
+        'ARRAY_APPEND',
+        'ARRAY_CAT',
+        'ARRAY_CONTAINS',
+        'ARRAY_POSITION',
+        'ARRAY_PREPEND',
+        'ARRAY_TO_STRING',
+        'ARRAYS_OVERLAP',
+        'OBJECT_AGG',
+        'GET',
+        'GET_PATH',
+        'GET_DDL',
+        'RANDSTR',
     ]
-    BINARY_FUNCTION = or_equals([make_function(f, 2, EXPRESSION) for f in func_names])
-
-    return BINARY_FUNCTION
+    return or_equals([make_n_ary_function(f, 2, EXPRESSION) for f in func_names])
 
 
-def make_unary_function_with_optional_arg_expression(EXPRESSION):
-    func_names = ['ABS', 'CEIL', 'FLOOR', 'ROUND', 'TRUNCATE', 'TRUNC']
-    UNARY_FUNCTION_WITH_OPTIONAL_ARG = or_equals(
-        [make_unary_function_with_optional_arg(f, EXPRESSION) for f in func_names]
+def make_binary_function_with_one_optional_args(EXPRESSION):
+    func_names = [
+        'CHARINDEX',
+        'ILIKE',
+        'LIKE',
+        'LPAD',
+        'PARSE_IP',
+        'REPLACE',
+        'RPAD',
+        'SUBSTR',
+        'SUBSTRING',
+        'REGEXP_LIKE',
+        'RLIKE',
+        'CONVERT_TIMEZONE',
+        'XMLGET',
+    ]
+    return or_equals(
+        [make_n_ary_function(f, 2, EXPRESSION, num_optional=1) for f in func_names]
     )
-    return UNARY_FUNCTION_WITH_OPTIONAL_ARG
+
+
+def make_binary_function_with_two_optional_args(EXPRESSION):
+    func_names = ['REGEXP_COUNT']
+    return or_equals(
+        [make_n_ary_function(f, 2, EXPRESSION, num_optional=2) for f in func_names]
+    )
+
+
+def make_binary_function_with_three_optional_args(EXPRESSION):
+    func_names = ['REGEXP_SUBSTR']
+    return or_equals(
+        [make_n_ary_function(f, 2, EXPRESSION, num_optional=3) for f in func_names]
+    )
+
+
+def make_binary_function_with_four_optional_args(EXPRESSION):
+    func_names = ['REGEXP_INSTR', 'REGEXP_REPLACE']
+    return or_equals(
+        [make_n_ary_function(f, 2, EXPRESSION, num_optional=4) for f in func_names]
+    )
+
+
+def make_trinary_function_expression(EXPRESSION):
+    func_names = [
+        'SPLIT_PART',
+        'TRANSLATE',
+        'DATE_FROM_PARTS',
+        'DATEADD',
+        'DATEDIFF',
+        'TIMEADD',
+        'TIMEDIFF',
+        'TIMESTAMPADD',
+        'TIMESTAMPDIFF',
+        'ARRAY_INSERT',
+        'ARRAY_SLICE',
+        'NORMAL',
+        'UNIFORM',
+        'ZIPF',
+    ]
+    return or_equals([make_n_ary_function(f, 3, EXPRESSION) for f in func_names])
+
+
+def make_trinary_function_with_one_optional_args(EXPRESSION):
+    func_names = ['TIME_FROM_PARTS', 'OBJECT_INSERT']
+    return or_equals(
+        [make_n_ary_function(f, 3, EXPRESSION, num_optional=1) for f in func_names]
+    )
+
+
+def make_quaternary_function_expression(EXPRESSION):
+    func_names = ['HAVERSINE', 'INSERT']
+    return or_equals([make_n_ary_function(f, 4, EXPRESSION) for f in func_names])
 
 
 def get_function_expression(EXPRESSION):
-    CONTEXT_FUNCTION = make_context_function_expression(EXPRESSION)
 
-    PI = make_nullary_function_manditory_parenthesis('PI')
-    NULLARY_FUNCTION_WITH_MANDATORY_PARENTHESES = PI
-
-    RANDOM = make_nullary_function_with_optional_arg('RANDOM', EXPRESSION)
-    NULLARY_FUNCTION_WITH_OPTIONAL_ARG = RANDOM
-
-    UNARY_FUNCTION = make_unary_function_expression(EXPRESSION)
-    BINARY_FUNCTION = make_binary_function_expression(EXPRESSION)
-
-    # Quaternary Functions
-    HAVERSINE = make_function('HAVERSINE', 4, EXPRESSION)
-    QUATERNARY_FUNCTION = HAVERSINE
-
-    UNARY_FUNCTION_WITH_OPTIONAL_ARG = make_unary_function_with_optional_arg_expression(
-        EXPRESSION
+    return (
+        # Nullary Function Expressions
+        make_context_function_expression(EXPRESSION)
+        | make_nullary_function('PI')
+        | make_nullary_function_with_optional_arg('RANDOM', EXPRESSION)
+        # Unary Function Expressions
+        | make_unary_function_expression(EXPRESSION)
+        | make_unary_function_with_one_optional_arg(EXPRESSION)
+        | make_unary_function_with_two_optional_args(EXPRESSION)
+        | make_unary_function_with_three_optional_args(EXPRESSION)
+        # Binary Function Expressions
+        | make_binary_function_expression(EXPRESSION)
+        | make_binary_function_with_one_optional_args(EXPRESSION)
+        | make_binary_function_with_two_optional_args(EXPRESSION)
+        | make_binary_function_with_three_optional_args(EXPRESSION)
+        | make_binary_function_with_four_optional_args(EXPRESSION)
+        # Trinary Function Expressions
+        | make_trinary_function_expression(EXPRESSION)
+        | make_trinary_function_with_one_optional_args(EXPRESSION)
+        # Quaternary Function Expressions
+        | make_quaternary_function_expression(EXPRESSION)
     )
-
-    FUNCTION_EXPRESSION = (
-        CONTEXT_FUNCTION
-        | UNARY_FUNCTION
-        | BINARY_FUNCTION
-        | UNARY_FUNCTION_WITH_OPTIONAL_ARG
-        | QUATERNARY_FUNCTION
-        | NULLARY_FUNCTION_WITH_MANDATORY_PARENTHESES
-        | NULLARY_FUNCTION_WITH_OPTIONAL_ARG
-    )
-    return FUNCTION_EXPRESSION
