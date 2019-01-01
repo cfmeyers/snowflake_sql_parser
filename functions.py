@@ -53,197 +53,196 @@ def make_function(func_name, arity, EXPRESSION):
 
 def make_context_function_expression(EXPRESSION):
     # Context functions take no args, can optionally be called without parentheses
-    CONTEXT_FUNCTION = (
-        make_nullary_function('CURRENT_CLIENT')
-        | make_nullary_function('CURRENT_DATE')
-        | make_nullary_function('CURRENT_TIME')
-        | make_nullary_function('CURRENT_TIMESTAMP')
-        | make_nullary_function('CURRENT_VERSION')
-        | make_nullary_function('LOCALTIME')
-        | make_nullary_function('LOCALTIMESTAMP')
-        | make_nullary_function('CURRENT_ROLE')
-        | make_nullary_function('CURRENT_SESSION')
-        | make_nullary_function('CURRENT_STATEMENT')
-        | make_nullary_function('CURRENT_TRANSACTION')
-        | make_nullary_function('CURRENT_USER')
-        | make_nullary_function('LAST_QUERY_ID')
-        | make_nullary_function('LAST_TRANSACTION')
-        | make_nullary_function('CURRENT_DATABASE')
-        | make_nullary_function('CURRENT_SCHEMA')
-        | make_nullary_function('CURRENT_SCHEMAS')
-        | make_nullary_function('CURRENT_WAREHOUSE')
-    )
+    func_names = [
+        'CURRENT_CLIENT',
+        'CURRENT_DATE',
+        'CURRENT_TIME',
+        'CURRENT_TIMESTAMP',
+        'CURRENT_VERSION',
+        'LOCALTIME',
+        'LOCALTIMESTAMP',
+        'CURRENT_ROLE',
+        'CURRENT_SESSION',
+        'CURRENT_STATEMENT',
+        'CURRENT_TRANSACTION',
+        'CURRENT_USER',
+        'LAST_QUERY_ID',
+        'LAST_TRANSACTION',
+        'CURRENT_DATABASE',
+        'CURRENT_SCHEMA',
+        'CURRENT_SCHEMAS',
+        'CURRENT_WAREHOUSE',
+    ]
+    CONTEXT_FUNCTION = or_equals([make_nullary_function(f) for f in func_names])
 
     return CONTEXT_FUNCTION
 
 
 def make_unary_function_expression(EXPRESSION):
     # Unary Functions
-    UNARY_FUNCTION = (
-        make_unary_function('BITAND_AGG', EXPRESSION)
-        | make_unary_function('BITNOT', EXPRESSION)
-        | make_unary_function('BITOR_AGG', EXPRESSION)
-        | make_unary_function('BITXOR_AGG', EXPRESSION)
-        | make_unary_function('SIGN', EXPRESSION)
-        | make_unary_function('CBRT', EXPRESSION)
-        | make_unary_function('EXP', EXPRESSION)
-        | make_unary_function('FACTORIAL', EXPRESSION)
-        | make_unary_function('SQRT', EXPRESSION)
-        | make_unary_function('SQUARE', EXPRESSION)
-        | make_unary_function('LN', EXPRESSION)
-        | make_unary_function('ACOS', EXPRESSION)
-        | make_unary_function('ACOSH', EXPRESSION)
-        | make_unary_function('ASIN', EXPRESSION)
-        | make_unary_function('ASINH', EXPRESSION)
-        | make_unary_function('ATAN', EXPRESSION)
-        | make_unary_function('ATAN2', EXPRESSION)
-        | make_unary_function('ATANH', EXPRESSION)
-        | make_unary_function('COS', EXPRESSION)
-        | make_unary_function('COSH', EXPRESSION)
-        | make_unary_function('COT', EXPRESSION)
-        | make_unary_function('DEGREES', EXPRESSION)
-        | make_unary_function('RADIANS', EXPRESSION)
-        | make_unary_function('SIN', EXPRESSION)
-        | make_unary_function('SINH', EXPRESSION)
-        | make_unary_function('TAN', EXPRESSION)
-        | make_unary_function('TANH', EXPRESSION)
-        | make_unary_function('ASCII', EXPRESSION)
-        | make_unary_function('BIT_LENGTH', EXPRESSION)
-        | make_unary_function('CHR', EXPRESSION)
-        | make_unary_function('CHAR', EXPRESSION)
-        | make_unary_function('LENGTH', EXPRESSION)
-        | make_unary_function('LOWER', EXPRESSION)
-        | make_unary_function('OCTET_LENGTH', EXPRESSION)
-        | make_unary_function('REVERSE', EXPRESSION)
-        | make_unary_function('RTRIMMED_LENGTH', EXPRESSION)
-        | make_unary_function('SPACE', EXPRESSION)
-        | make_unary_function('UNICODE', EXPRESSION)
-        | make_unary_function('UPPER', EXPRESSION)
-        | make_unary_function('HEX_DECODE_BINARY', EXPRESSION)
-        | make_unary_function('HEX_DECODE_STRING', EXPRESSION)
-        | make_unary_function('TRY_HEX_DECODE_BINARY', EXPRESSION)
-        | make_unary_function('TRY_HEX_DECODE_STRING', EXPRESSION)
-        | make_unary_function('MD5', EXPRESSION)
-        | make_unary_function('MD5_HEX', EXPRESSION)
-        | make_unary_function('MD5_BINARY', EXPRESSION)
-        | make_unary_function('MD5_NUMBER', EXPRESSION)
-        | make_unary_function('SHA1', EXPRESSION)
-        | make_unary_function('SHA1_HEX', EXPRESSION)
-        | make_unary_function('SHA1_BINARY', EXPRESSION)
-        | make_unary_function('DAYNAME', EXPRESSION)
-        | make_unary_function('HOUR', EXPRESSION)
-        | make_unary_function('MINUTE', EXPRESSION)
-        | make_unary_function('SECOND', EXPRESSION)
-        | make_unary_function('MONTHNAME', EXPRESSION)
-        | make_unary_function('YEAR', EXPRESSION)
-        | make_unary_function('YEAROFWEEK', EXPRESSION)
-        | make_unary_function('YEAROFWEEKISO', EXPRESSION)
-        | make_unary_function('DAY', EXPRESSION)
-        | make_unary_function('DAYOFMONTH', EXPRESSION)
-        | make_unary_function('DAYOFWEEK', EXPRESSION)
-        | make_unary_function('DAYOFWEEKISO', EXPRESSION)
-        | make_unary_function('DAYOFYEAR', EXPRESSION)
-        | make_unary_function('WEEK', EXPRESSION)
-        | make_unary_function('WEEKOFYEAR', EXPRESSION)
-        | make_unary_function('WEEKISO', EXPRESSION)
-        | make_unary_function('MONTH', EXPRESSION)
-        | make_unary_function('QUARTER', EXPRESSION)
-        | make_unary_function('CHECK_JSON', EXPRESSION)
-        | make_unary_function('CHECK_XML', EXPRESSION)
-        | make_unary_function('PARSE_JSON', EXPRESSION)
-        | make_unary_function('PARSE_XML', EXPRESSION)
-        | make_unary_function('STRIP_NULL_VALUE', EXPRESSION)
-        | make_unary_function('ARRAY_COMPACT', EXPRESSION)
-        | make_unary_function('ARRAY_SIZE', EXPRESSION)
-        | make_unary_function('AS_ARRAY', EXPRESSION)
-        | make_unary_function('AS_BINARY', EXPRESSION)
-        | make_unary_function('AS_CHAR', EXPRESSION)
-        | make_unary_function('AS_VARCHAR', EXPRESSION)
-        | make_unary_function('AS_DATE', EXPRESSION)
-        | make_unary_function('AS_DOUBLE', EXPRESSION)
-        | make_unary_function('AS_REAL', EXPRESSION)
-        | make_unary_function('AS_INTEGER', EXPRESSION)
-        | make_unary_function('AS_OBJECT', EXPRESSION)
-        | make_unary_function('AS_TIME', EXPRESSION)
-        | make_unary_function('AS_TIMESTAMP_LTZ', EXPRESSION)
-        | make_unary_function('AS_TIMESTAMP_NTZ', EXPRESSION)
-        | make_unary_function('AS_TIMESTAMP_TZ', EXPRESSION)
-        | make_unary_function('TO_ARRAY', EXPRESSION)
-        | make_unary_function('TO_JSON', EXPRESSION)
-        | make_unary_function('TO_OBJECT', EXPRESSION)
-        | make_unary_function('TO_VARIANT', EXPRESSION)
-        | make_unary_function('TO_XML', EXPRESSION)
-        | make_unary_function('IS_ARRAY', EXPRESSION)
-        | make_unary_function('IS_BINARY', EXPRESSION)
-        | make_unary_function('IS_BOOLEAN', EXPRESSION)
-        | make_unary_function('IS_CHAR', EXPRESSION)
-        | make_unary_function('IS_VARCHAR', EXPRESSION)
-        | make_unary_function('IS_DATE', EXPRESSION)
-        | make_unary_function('IS_DATE_VALUE', EXPRESSION)
-        | make_unary_function('IS_DECIMAL', EXPRESSION)
-        | make_unary_function('IS_DOUBLE', EXPRESSION)
-        | make_unary_function('IS_REAL', EXPRESSION)
-        | make_unary_function('IS_INTEGER', EXPRESSION)
-        | make_unary_function('IS_NULL_VALUE', EXPRESSION)
-        | make_unary_function('IS_OBJECT', EXPRESSION)
-        | make_unary_function('IS_TIME', EXPRESSION)
-        | make_unary_function('IS_TIMESTAMP_LTZ', EXPRESSION)
-        | make_unary_function('IS_TIMESTAMP_NTZ', EXPRESSION)
-        | make_unary_function('IS_TIMESTAMP_TZ', EXPRESSION)
-        | make_unary_function('TYPEOF', EXPRESSION)
-        | make_unary_function('TRY_TO_DOUBLE', EXPRESSION)
-        | make_unary_function('TO_BOOLEAN', EXPRESSION)
-        | make_unary_function('TRY_TO_BOOLEAN', EXPRESSION)
-        | make_unary_function('TRY_TO_DATE', EXPRESSION)
-        | make_unary_function('TRY_TO_TIME', EXPRESSION)
-        | make_unary_function('TRY_TO_TIMESTAMP', EXPRESSION)
-        | make_unary_function('TRY_TO_TIMESTAMP_LTZ', EXPRESSION)
-        | make_unary_function('TRY_TO_TIMESTAMP_NTZ', EXPRESSION)
-        | make_unary_function('TRY_TO_TIMESTAMP_TZ', EXPRESSION)
-        | make_unary_function('SYSTEM$ABORT_SESSION', EXPRESSION)
-        | make_unary_function('SYSTEM$ABORT_TRANSACTION', EXPRESSION)
-        | make_unary_function('SYSTEM$CANCEL_ALL_QUERIES', EXPRESSION)
-        | make_unary_function('SYSTEM$CANCEL_QUERY', EXPRESSION)
-        | make_unary_function('SYSTEM$LAST_CHANGE_COMMIT_TIME', EXPRESSION)
-        | make_unary_function('SYSTEM$PIPE_FORCE_RESUME', EXPRESSION)
-        | make_unary_function('SYSTEM$PIPE_STATUS', EXPRESSION)
-        | make_unary_function('SYSTEM$TYPEOF', EXPRESSION)
-        | make_unary_function('SEQ1', EXPRESSION)
-        | make_unary_function('SEQ2', EXPRESSION)
-        | make_unary_function('SEQ4', EXPRESSION)
-        | make_unary_function('SEQ8', EXPRESSION)
-    )
+    func_names = [
+        'BITAND_AGG',
+        'BITNOT',
+        'BITOR_AGG',
+        'BITXOR_AGG',
+        'SIGN',
+        'CBRT',
+        'EXP',
+        'FACTORIAL',
+        'SQRT',
+        'SQUARE',
+        'LN',
+        'ACOS',
+        'ACOSH',
+        'ASIN',
+        'ASINH',
+        'ATAN',
+        'ATAN2',
+        'ATANH',
+        'COS',
+        'COSH',
+        'COT',
+        'DEGREES',
+        'RADIANS',
+        'SIN',
+        'SINH',
+        'TAN',
+        'TANH',
+        'ASCII',
+        'BIT_LENGTH',
+        'CHR',
+        'CHAR',
+        'LENGTH',
+        'LOWER',
+        'OCTET_LENGTH',
+        'REVERSE',
+        'RTRIMMED_LENGTH',
+        'SPACE',
+        'UNICODE',
+        'UPPER',
+        'HEX_DECODE_BINARY',
+        'HEX_DECODE_STRING',
+        'TRY_HEX_DECODE_BINARY',
+        'TRY_HEX_DECODE_STRING',
+        'MD5',
+        'MD5_HEX',
+        'MD5_BINARY',
+        'MD5_NUMBER',
+        'SHA1',
+        'SHA1_HEX',
+        'SHA1_BINARY',
+        'DAYNAME',
+        'HOUR',
+        'MINUTE',
+        'SECOND',
+        'MONTHNAME',
+        'YEAR',
+        'YEAROFWEEK',
+        'YEAROFWEEKISO',
+        'DAY',
+        'DAYOFMONTH',
+        'DAYOFWEEK',
+        'DAYOFWEEKISO',
+        'DAYOFYEAR',
+        'WEEK',
+        'WEEKOFYEAR',
+        'WEEKISO',
+        'MONTH',
+        'QUARTER',
+        'CHECK_JSON',
+        'CHECK_XML',
+        'PARSE_JSON',
+        'PARSE_XML',
+        'STRIP_NULL_VALUE',
+        'ARRAY_COMPACT',
+        'ARRAY_SIZE',
+        'AS_ARRAY',
+        'AS_BINARY',
+        'AS_CHAR',
+        'AS_VARCHAR',
+        'AS_DATE',
+        'AS_DOUBLE',
+        'AS_REAL',
+        'AS_INTEGER',
+        'AS_OBJECT',
+        'AS_TIME',
+        'AS_TIMESTAMP_LTZ',
+        'AS_TIMESTAMP_NTZ',
+        'AS_TIMESTAMP_TZ',
+        'TO_ARRAY',
+        'TO_JSON',
+        'TO_OBJECT',
+        'TO_VARIANT',
+        'TO_XML',
+        'IS_ARRAY',
+        'IS_BINARY',
+        'IS_BOOLEAN',
+        'IS_CHAR',
+        'IS_VARCHAR',
+        'IS_DATE',
+        'IS_DATE_VALUE',
+        'IS_DECIMAL',
+        'IS_DOUBLE',
+        'IS_REAL',
+        'IS_INTEGER',
+        'IS_NULL_VALUE',
+        'IS_OBJECT',
+        'IS_TIME',
+        'IS_TIMESTAMP_LTZ',
+        'IS_TIMESTAMP_NTZ',
+        'IS_TIMESTAMP_TZ',
+        'TYPEOF',
+        'TRY_TO_DOUBLE',
+        'TO_BOOLEAN',
+        'TRY_TO_BOOLEAN',
+        'TRY_TO_DATE',
+        'TRY_TO_TIME',
+        'TRY_TO_TIMESTAMP',
+        'TRY_TO_TIMESTAMP_LTZ',
+        'TRY_TO_TIMESTAMP_NTZ',
+        'TRY_TO_TIMESTAMP_TZ',
+        'SYSTEM$ABORT_SESSION',
+        'SYSTEM$ABORT_TRANSACTION',
+        'SYSTEM$CANCEL_ALL_QUERIES',
+        'SYSTEM$CANCEL_QUERY',
+        'SYSTEM$LAST_CHANGE_COMMIT_TIME',
+        'SYSTEM$PIPE_FORCE_RESUME',
+        'SYSTEM$PIPE_STATUS',
+        'SYSTEM$TYPEOF',
+        'SEQ1',
+        'SEQ2',
+        'SEQ4',
+        'SEQ8',
+    ]
+    UNARY_FUNCTION = or_equals([make_unary_function(f, EXPRESSION) for f in func_names])
 
     return UNARY_FUNCTION
 
 
 def make_binary_function_expression(EXPRESSION):
     # Binary Functions
-    BINARY_FUNCTION = (
-        make_function('BITAND', 2, EXPRESSION)
-        | make_function('BITOR', 2, EXPRESSION)
-        | make_function('BITSHIFTLEFT', 2, EXPRESSION)
-        | make_function('BITSHIFTRIGHT', 2, EXPRESSION)
-        | make_function('BITXOR', 2, EXPRESSION)
-        | make_function('MOD', 2, EXPRESSION)
-        | make_function('POW', 2, EXPRESSION)
-        | make_function('POWER', 2, EXPRESSION)
-        | make_function('LOG', 2, EXPRESSION)
-    )
+
+    func_names = [
+        'BITAND',
+        'BITOR',
+        'BITSHIFTLEFT',
+        'BITSHIFTRIGHT',
+        'BITXOR',
+        'MOD',
+        'POW',
+        'POWER',
+        'LOG',
+    ]
+    BINARY_FUNCTION = or_equals([make_function(f, 2, EXPRESSION) for f in func_names])
 
     return BINARY_FUNCTION
 
 
 def make_unary_function_with_optional_arg_expression(EXPRESSION):
-    UNARY_FUNCTION_WITH_OPTIONAL_ARG = (
-        make_unary_function_with_optional_arg('ABS', EXPRESSION)
-        | make_unary_function_with_optional_arg('CEIL', EXPRESSION)
-        | make_unary_function_with_optional_arg('FLOOR', EXPRESSION)
-        | make_unary_function_with_optional_arg('ROUND', EXPRESSION)
-        | make_unary_function_with_optional_arg('TRUNCATE', EXPRESSION)
-        | make_unary_function_with_optional_arg('TRUNC', EXPRESSION)
+    func_names = ['ABS', 'CEIL', 'FLOOR', 'ROUND', 'TRUNCATE', 'TRUNC']
+    UNARY_FUNCTION_WITH_OPTIONAL_ARG = or_equals(
+        [make_unary_function_with_optional_arg(f, EXPRESSION) for f in func_names]
     )
-
     return UNARY_FUNCTION_WITH_OPTIONAL_ARG
 
 

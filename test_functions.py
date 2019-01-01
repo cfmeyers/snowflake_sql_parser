@@ -41,6 +41,22 @@ class TestContextFunction:
 
     def test_it_can_be_just_the_function_name(self):
         assert_parses(CONTEXT_FUNCTION, 'CURRENT_DATE')
+        assert_parses(CONTEXT_FUNCTION, 'CURRENT_TIME'),
+        assert_parses(CONTEXT_FUNCTION, 'CURRENT_TIMESTAMP'),
+        assert_parses(CONTEXT_FUNCTION, 'CURRENT_VERSION'),
+        assert_parses(CONTEXT_FUNCTION, 'LOCALTIME'),
+        assert_parses(CONTEXT_FUNCTION, 'LOCALTIMESTAMP'),
+        assert_parses(CONTEXT_FUNCTION, 'CURRENT_ROLE'),
+        assert_parses(CONTEXT_FUNCTION, 'CURRENT_SESSION'),
+        assert_parses(CONTEXT_FUNCTION, 'CURRENT_STATEMENT'),
+        assert_parses(CONTEXT_FUNCTION, 'CURRENT_TRANSACTION'),
+        assert_parses(CONTEXT_FUNCTION, 'CURRENT_USER'),
+        assert_parses(CONTEXT_FUNCTION, 'LAST_QUERY_ID'),
+        assert_parses(CONTEXT_FUNCTION, 'LAST_TRANSACTION'),
+        assert_parses(CONTEXT_FUNCTION, 'CURRENT_DATABASE'),
+        assert_parses(CONTEXT_FUNCTION, 'CURRENT_SCHEMA'),
+        assert_parses(CONTEXT_FUNCTION, 'CURRENT_SCHEMAS'),
+        assert_parses(CONTEXT_FUNCTION, 'CURRENT_WAREHOUSE'),
 
     def test_case_does_not_matter(self):
         assert_parses(CONTEXT_FUNCTION, 'CURRENT_DATE')
