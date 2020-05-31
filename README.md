@@ -3,7 +3,7 @@
 A Python library for parsing Snowflake SQL statements (using [PyParsing](https://github.com/pyparsing/pyparsing)).
 Initially it will just check if a script is properly-formed Snowflake SQL.  In the medium-term it will be used to develop a Snowflake SQL formatter.
 
-
+ 
 # Implemented So Far
 
 ## `SELECT`
